@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotos de producto listas para vender | Catalog Image Cleaner</title>
+    <meta name="description"
+        content="Elimina el fondo de tus fotos de producto y crea imágenes profesionales para tu catálogo online en segundos.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">📸</span>
+                <span class="brand-name">Catalog Image Cleaner</span>
+            </div>
+            <p class="tagline">Herramienta profesional para emprendedores</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section / Idle State -->
+        <section id="section-idle" class="hero-section active">
+            <div class="hero-content">
+                <h1 class="main-title">Fotos de producto listas para vender</h1>
+                <p class="main-subtitle">Quitá el fondo, elegí un formato profesional y descargá imágenes limpias para
+                    tu catálogo, redes o tienda online.</p>
+
+                <div class="upload-card" id="drop-zone">
+                    <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp" hidden>
+                    <div class="upload-icon">📤</div>
+                    <h3>Subí una foto de tu producto</h3>
+                    <p>Nosotros limpiamos el fondo y la dejamos lista para vender.</p>
+                    <span class="upload-hint">JPG, PNG o WEBP (Máx. 10MB)</span>
+                    <button class="btn btn-primary btn-large"
+                        onclick="document.getElementById('file-input').click()">Seleccionar imagen</button>
+                </div>
+
+                <div class="advice-box">
+                    <p><strong>💡 Consejo:</strong> Para mejores resultados usá fotos con buena luz, producto completo y
+                        fondo lo más despejado posible.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <span class="feature-icon">✨</span>
+                        <h4>Fondo limpio</h4>
+                        <p>IA avanzada para recortes precisos en segundos.</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📱</span>
+                        <h4>Formatos Listos</h4>
+                        <p>Instagram, Mercado Libre y WhatsApp en un click.</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">💰</span>
+                        <h4>Vende más</h4>
+                        <p>Imágenes profesionales que generan confianza.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Processing State -->
+        <section id="section-processing" class="processing-section">
+            <div class="processing-card">
+                <div class="loader"></div>
+                <h2>Procesando imagen...</h2>
+                <p>Nuestra IA está eliminando el fondo para dejar tu producto impecable.</p>
+                <div class="status-steps">
+                    <div class="step active" id="step-upload">Subiendo...</div>
+                    <div class="step" id="step-ai">Quitando fondo...</div>
+                    <div class="step" id="step-final">Finalizando...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Editor State -->
+        <section id="section-editor" class="editor-section">
+            <div class="editor-header-actions">
+                <button class="btn btn-secondary btn-sm" id="btn-new-image-top">← Cargar otra imagen</button>
+                <h2 class="editor-title">Personalizá tu imagen</h2>
+            </div>
+
+            <div class="editor-layout">
+                <!-- Preview Canvas Column -->
+                <div class="preview-column">
+                    <div class="canvas-container" id="canvas-container">
+                        <canvas id="main-canvas"></canvas>
+
+                        <div class="comparison-toggle">
+                            <button class="btn btn-secondary btn-sm" id="btn-toggle-original">Mantener para ver
+                                original</button>
+                        </div>
+                    </div>
+
+                    <div id="original-preview-container" class="hidden">
+                        <img id="original-img-preview" src="" alt="Original">
+                    </div>
+                </div>
+
+                <!-- Controls Column -->
+                <div class="controls-column">
+                    <div class="control-card">
+                        <h3>Fondo y Estilo</h3>
+                        <div class="control-group">
+                            <label>Tipo de fondo</label>
+                            <div class="bg-options">
+                                <button class="bg-opt active" data-type="transparent" title="Transparente">🏁</button>
+                                <button class="bg-opt" data-type="color" data-value="#ffffff" title="Blanco">⚪</button>
+                                <button class="bg-opt" data-type="color" data-value="#f3f4f6" title="Gris">🔘</button>
+                                <button class="bg-opt" data-type="gradient" title="Degradado">🌈</button>
+                                <button class="bg-opt" data-type="picker" title="Elegir color">🎨</button>
+                            </div>
+                            <div id="color-picker-container" class="hidden">
+                                <input type="color" id="bg-color-picker" value="#ffffff">
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>Sombra del producto</label>
+                            <div class="toggle-group">
+                                <span>Desactivada</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="shadow-toggle">
+                                    <span class="slider round"></span>
+                                </label>
+                                <span>Activada</span>
+                            </div>
+                            <div id="shadow-controls" class="hidden">
+                                <label>Intensidad</label>
+                                <input type="range" id="shadow-intensity" min="0" max="100" value="30">
+                                <label>Difuminado</label>
+                                <input type="range" id="shadow-blur" min="0" max="50" value="15">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="control-card">
+                        <h3>Formato y Ajuste</h3>
+                        <div class="control-group">
+                            <label>Formato de salida</label>
+                            <select id="format-preset">
+                                <option value="square">Cuadrado (1:1)</option>
+                                <option value="whatsapp">WhatsApp catálogo (1080x1080)</option>
+                                <option value="instagram">Instagram Post (4:5)</option>
+                                <option value="story">Instagram Story (9:16)</option>
+                                <option value="mercado_libre">Mercado Libre (1200px)</option>
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <label>Tamaño del producto: <span id="scale-val">80%</span></label>
+                            <input type="range" id="product-scale" min="10" max="150" value="80">
+                        </div>
+
+                        <div class="control-group">
+                            <label>Margen: <span id="margin-val">10%</span></label>
+                            <input type="range" id="product-margin" min="0" max="40" value="10">
+                        </div>
+
+                        <div class="btn-group-grid">
+                            <button class="btn btn-secondary btn-sm" id="btn-center">Centrar</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-reset">Resetear</button>
+                        </div>
+                    </div>
+
+                    <div class="control-card export-card">
+                        <h3>Descargá tu imagen lista para publicar</h3>
+                        <div class="export-options">
+                            <button class="btn btn-primary" id="btn-download-png">Descargar PNG</button>
+                            <button class="btn btn-outline" id="btn-download-jpg">Descargar JPG</button>
+                            <button class="btn btn-outline" id="btn-download-webp">Descargar WEBP</button>
+                        </div>
+                        <button class="btn btn-link" id="btn-new-image">Procesar otra imagen</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error State -->
+        <section id="section-error" class="error-section">
+            <div class="error-card">
+                <div class="error-icon">⚠️</div>
+                <h2 id="error-title">¡Ups! Algo salió mal</h2>
+                <p id="error-message">No pudimos procesar la imagen. Por favor, intentá de nuevo con otro archivo.</p>
+                <button class="btn btn-primary" id="btn-error-retry">Volver a intentar</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>Desarrollado por <strong>Dr. Eduardo R. Henquín</strong></p>
+            <p><a href="https://ehenquin.github.io/LinkTreePro/" target="_blank" rel="noopener noreferrer"
+                    class="footer-link">Más herramientas en mi LinkTree Pro</a></p>
+        </div>
+    </footer>
+
+    <!-- Toast Messages -->
+    <div id="toast" class="toast">Mensaje aquí</div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
