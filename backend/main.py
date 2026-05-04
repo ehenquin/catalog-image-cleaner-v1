@@ -70,30 +70,59 @@ async def warmup():
 
 @app.post("/api/remove-background")
 async def remove_background(file: UploadFile = File(...)):
-    # Basic validations
+    start_time = time.time()
     validate_image(file)
     
-    # Check size
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail=f"File too large. Max allowed is {MAX_UPLOAD_SIZE // (1024*1024)}MB.")
 
     try:
-        # 3. Pillow Integrity Check
+        # 1. Abrir y convertir a RGBA
         image = Image.open(io.BytesIO(content))
-        image.verify() # Verify it's a real image
+        original_size = image.size
         
-        # Re-open after verify() because it closes the stream
-        image = Image.open(io.BytesIO(content))
+        # Asegurar modo compatible
+        if image.mode != "RGBA":
+            image = image.convert("RGBA")
+            
+        # 2. Redimensionar si es muy grande (Máx 1280px en el lado mayor)
+        max_size = 1280
+        if max(image.size) > max_size:
+            ratio = max_size / max(image.size)
+            new_size = (int(image.size[0] * ratio), int(image.size[1] * ratio))
+            # Usar Resampling.LANCZOS para máxima calidad
+            image = image.resize(new_size, Image.Resampling.LANCZOS)
         
-        # 4. Processing in Memory using lazy loaded session
-        output_data = rembg.remove(content, session=get_rembg_session())
+        resized_size = image.size
+        
+        # 3. Preparar buffer para rembg (convertir a bytes PNG)
+        input_buf = io.BytesIO()
+        image.save(input_buf, format="PNG")
+        input_data = input_buf.getvalue()
+        
+        # 4. Procesar con rembg usando la sesión lazy
+        try:
+            output_data = rembg.remove(input_data, session=get_rembg_session())
+        except Exception as re_err:
+            print(f"Error crítico en rembg: {str(re_err)}")
+            raise HTTPException(status_code=500, detail="El motor de IA falló al eliminar el fondo. Intentá con una imagen más simple.")
+
+        process_time = time.time() - start_time
+        
+        # Logs de control para Railway
+        print(f"--- LOG: Procesamiento Exitoso ---")
+        print(f"Original: {original_size[0]}x{original_size[1]}")
+        print(f"Redimensionada: {resized_size[0]}x{resized_size[1]}")
+        print(f"Tiempo: {process_time:.2f}s")
         
         return StreamingResponse(io.BytesIO(output_data), media_type="image/png")
         
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"Processing error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error processing image. Make sure it's a valid product photo.")
+        print(f"Error general de procesamiento: {str(e)}")
+        raise HTTPException(status_code=500, detail="No se pudo procesar la imagen. Asegurate de que el archivo sea válido.")
 
 if __name__ == "__main__":
     import uvicorn
