@@ -3,7 +3,7 @@
  */
 
 // --- CONFIGURATION ---
-const API_BASE_URL = "http://localhost:8000"; // CAMBIAR ESTO AL DESPLEGAR
+const API_BASE_URL = "https://catalog-image-cleaner-v1-production.up.railway.app"; // CAMBIAR ESTO AL DESPLEGAR
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // --- STATE MANAGEMENT ---
